@@ -1,0 +1,152 @@
+<script type="text/javascript" src="/static/jquery.min.js"></script>
+<script type="text/javascript" src="/static/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="/static/jquery-ui.min.css" />
+<style>
+    .ui-autocomplete-loading {
+        background: white url("/static/images/ui-anim_basic_16x16.gif") right center no-repeat;
+    }
+
+    .ui-autocomplete {
+        max-height: 100px;
+        overflow-y: auto;
+        /* prevent horizontal scrollbar */
+        overflow-x: hidden;
+    }
+</style>
+<div id="settings">
+    <h2>Get Recommendations</h2>
+    <span>Users:</span> <input type="text" id="txtUsers" value="22, 196, 244, 2038, 100" />
+    <span>Number of Recs:</span> <input type="text" id="txtNrRecs" value="10" />
+    <span>Algorithms</span>
+    <select id="cmbAlgos">
+        <option>Popular</option>
+        <option>Bias</option>
+        <option>TopN</option>
+        <option>BiasedMF</option>
+        <option>ImplicitMF</option>
+        <option>FunkSVD</option>
+    </select>
+    <span>Items:</span> <input type="text" id="txtItems" value="5, 102, 203, 304, 400" />
+    <button id="btnRecs">Get Recommendations/Predictions</button>
+    <h4>Recommendations/Predictions:</h4>
+    <div class="recs">
+    </div>
+</div>
+<br />
+<br />
+<div id="quick-picks">
+    <h2>Quick picks functionality</h2>
+    <h4>Pick 5 movies and the system gives me recommendations.</h4>
+    <span>Movies:</span>
+    <div class="ui-widget">
+        <input id="movies" size="100" />
+    </div>
+    <button id="btnQPRecs">Get Recommendations</button>
+</div>
+
+
+<!-- <div id="search">
+    <input type="text" id="txtQuery" style="width:70%" />
+    <br />
+    <input type="button" id="btnSearch" value="Search" style="width:20%" />
+    <br />
+    <span id="loading" style="display: none;">Loading...</span>
+    <br />
+</div> -->
+<div class="result">
+</div>
+<div id="dialog-doc" title="Document Content">
+    <span id="docContent"></span>
+</div>
+
+<script type="text/javascript">
+    var movies = []
+    $(function () {
+        $("#btnRecs").click(function () {
+            getRecs();
+        });
+
+        getMovies();
+
+        function split(val) {
+            return val.split(/,\s*/);
+        }
+        function extractLast(term) {
+            return split(term).pop();
+        }
+
+        $('#movies')
+            .on("keydown", function (event) {
+                if (event.keyCode === $.ui.keyCode.TAB &&
+                    $(this).autocomplete("instance").menu.active) {
+                    event.preventDefault();
+                }
+            })
+            .autocomplete({
+                source: function (request, response) {
+                    $.ajax({
+                        url: "/movies",
+                        method: "GET",
+                        dataType: "json",
+                        data: {
+                            term: extractLast(request.term)
+                        },
+                    }).then(function (data) {
+                        response(data.result);
+                    });
+                },
+                minLength: 2,
+                select: function (event, ui) {
+                    var terms = split(this.value);
+                    // remove the current input
+                    terms.pop();
+                    // add the selected item
+                    terms.push(ui.item.value);
+                    // add placeholder to get the comma-and-space at the end
+                    terms.push("");
+                    this.value = terms.join(", ");
+                    return false;
+                }
+            })
+
+    });
+
+    function getRecs() {
+        $('.recs').empty();
+        $.ajax({
+            url: "/recs",
+            method: "POST",
+            dataType: "json",
+            data: {
+                users: $("#txtUsers").val(),
+                nrrecs: $("#txtNrRecs").val(),
+                algo: $("#cmbAlgos").val(),
+                items: $("#txtItems").val()
+            }
+        }).then(function (response) {
+            var htmlItem = "<div class='item'><span>User: <user/></span><p><recs/></p></div><br />"
+            response.result.forEach(item => {
+                var recs = "";
+                item["recs"].forEach(rec => {
+                    recs += rec['item'] + " ,";
+                });
+                recs = recs.substr(0, recs.length - 1);
+                var parsedItem = htmlItem.replace('<user/>', item["user"]).replace('<recs/>', recs);
+                $('.recs').append(parsedItem);
+            });
+            console.log(response);
+        });
+    }
+
+    function getMovies() {
+        $.ajax({
+            url: "/movies",
+            method: "GET",
+            dataType: "json",
+        }).then(function (response) {
+            console.log(response.result);
+            movies = response.result
+        });
+    }
+
+</script>

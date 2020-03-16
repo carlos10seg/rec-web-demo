@@ -10,10 +10,19 @@ def index():
 def get_recs():
     users = list(map(int, request.form.get("users").split(',')))
     nr_recs = request.form.get("nrrecs")
-    algo = request.form.get("algo")
+    algo = request.form.get("algo")    
     items = list(map(int, request.form.get("items").split(',')))
     ctrl = Controller()
     return jsonify({"result": ctrl.get_recs(users, nr_recs, algo, items)})
+
+
+@application.route("/qprecs", methods=['POST'])
+def get_qprecs():
+    movies = list(map(int, request.form.get("movies").split(',')))
+    nr_recs = request.form.get("nrrecs")
+    items = request.form.get("items")
+    ctrl = Controller()
+    return jsonify({"result": ctrl.get_qprecs(movies, nr_recs, items)})
 
 @application.route("/movies")
 def get_movies():
@@ -25,4 +34,4 @@ def get_movies():
     return jsonify({"result": movies})
     
 if __name__ == "__main__":
-    application.run()
+    application.run(debug=True, port=5002)

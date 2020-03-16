@@ -7,13 +7,13 @@ class Controller:
         return self.get_recs_from_recserver(users, nr_recs, algo, items)
 
     def get_recs_from_recserver(self, users, nr_recs, algo, items):
-#         # http://127.0.0.1:5001/lkpy/recommend/popular/2038/10
         recs = []
         for userId in users:
-            url = f'http://127.0.0.1:5001/lkpy/recommend/{algo}/{userId}/{nr_recs}'
+            #url = f'http://127.0.0.1:5000/algorithms/{algo}/recommendations?user_id={userId}&num_recs={nr_recs}'
+            url = f'http://127.0.0.1:5000/algorithms/{algo}/predictions?user_id={userId}&items={items}'
             r = requests.get(url)
             data = r.json()
-            recs.append({'user': userId, 'recs': data['recommendations']})
+            recs.append({'user': userId, 'recs': data['predictions']})
         return recs
         
         print(data)
@@ -21,7 +21,25 @@ class Controller:
     
     def get_movies(self, term):
         dbManager = DbManager()
-        db_list = dbManager.get_movies()
-        db_list = [m for m in db_list if term in str.lower(m[1])]
-        return [{'id': m[0], 'label': m[1], 'value': m[1]} for m in db_list]
+        db_list = dbManager.get_movies(term)
+        #for index, row in db_list.iterrows():
+        return [{'id': m[1]['movieId'], 'label': m[1]['title'], 'value': m[1]['title']} for m in db_list.iterrows()]
+        # db_list = [m for m in db_list if term in str.lower(m[1])]
+        # return [{'id': m[0], 'label': m[1], 'value': m[1]} for m in db_list]
 
+    def get_qprecs(self, movies, nr_recs, items):
+        dbManager = DbManager()        
+        user_id = 0
+        rating_value = 5
+        algo = 'itemitem'
+        # remove all ratings from this user
+        dbManager.remove_ratings(user_id)
+
+        # insert ratings (value: 10) for user 0 for each movie
+        for m in movies:
+            dbManager.insert_rating(user_id, m, rating_value)
+        
+        # get recs
+        return self.get_recs([user_id], nr_recs, algo, items)
+
+        

@@ -38,3 +38,12 @@ class DbManager:
     def remove_ratings(self, user_id):
         sql.execute("DELETE FROM ratings WHERE userId = {userId}".format(
                     userId=user_id), create_engine(self.conn_string))
+
+    def insert_and_get_min_user_id(self):
+        db_list = sql.read_sql("SELECT MIN(userId) as userId FROM users;", create_engine(self.conn_string))
+        #min_user_id = [m[1]['userId'] for m in db_list.iterrows()][0]
+        min_user_id = db_list.iloc[0]['userId']
+        user_id = int(min_user_id - 1)
+        sql.execute("INSERT INTO users(userId) VALUES ({userId})".format(userId=user_id), create_engine(self.conn_string))
+        return user_id
+    

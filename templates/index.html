@@ -19,12 +19,14 @@
     <span>Number of Recs:</span> <input type="text" id="txtNrRecs" value="10" />
     <span>Algorithms</span>
     <select id="cmbAlgos">
-        <option>Popular</option>
-        <option>Bias</option>
-        <option>TopN</option>
-        <option>BiasedMF</option>
-        <option>ImplicitMF</option>
-        <option>FunkSVD</option>
+        <option value="popular">Popular</option>
+        <option value="bias">Bias</option>
+        <option value="topn">TopN</option>
+        <option value="itemitem">ItemItem</option>
+        <option value="useruser">UserUser</option>
+        <option value="biasedmf">BiasedMF</option>
+        <option value="implicitmf">ImplicitMF</option>
+        <option value="funksvd">FunkSVD</option>
     </select>
     <span>Items:</span> <input type="text" id="txtItems" value="5,102,203,304,400" />
     <button id="btnRecs">Get Recommendations/Predictions</button>
@@ -161,10 +163,10 @@
             data: {
                 movies: moviesIds,
                 nrrecs: $("#txtNrRecs").val(),
-                items: $("#txtItems").val()
+                items: $("#txtItems").val(),
                 // user: $("#txtUsers").val(),
                 // nrrecs: $("#txtNrRecs").val(),
-                // algo: $("#cmbAlgos").val(),
+                algo: $("#cmbAlgos").val()
                 // items: $("#txtItems").val()
             }
         }).then(function (response) {
@@ -172,7 +174,7 @@
             response.result.forEach(item => {
                 var recs = "";
                 item["recs"].forEach(rec => {
-                    recs += rec['item'] + " : " + rec['score'] + " ,";
+                    recs += rec['item'] + " => " + rec['score'] + " , ";
                 });
                 recs = recs.substr(0, recs.length - 1);
                 var parsedItem = htmlItem.replace('<user/>', item["user"]).replace('<recs/>', recs);

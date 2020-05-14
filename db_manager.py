@@ -24,6 +24,9 @@ class DbManager:
     def get_movies(self, term):
         return sql.read_sql("SELECT movieId, title, genres FROM movies WHERE title LIKE '%{term}%';".format(term=term), create_engine(self.conn_string))
 
+    def get_movie(self, id):
+        return sql.read_sql("SELECT title, genres FROM movies WHERE movieId = {id};".format(id=id), create_engine(self.conn_string))
+
     def get_links(self):
         return sql.read_sql("SELECT movieId, imdbId, tmdbId FROM links;", create_engine(self.conn_string))
 
@@ -32,7 +35,7 @@ class DbManager:
                     userId=user_id,
                     itemId=movie_id,
                     rating=rating_value,
-                    timestamp=datetime.now(),
+                    timestamp=datetime.timestamp(datetime.now()),
                     ), create_engine(self.conn_string))
 
     def remove_ratings(self, user_id):

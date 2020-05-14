@@ -4,7 +4,9 @@ application = Flask(__name__)
  
 @application.route("/")
 def index():
-    return render_template('index.html')
+    ctrl = Controller()
+    user_id = ctrl.get_current_user_id()
+    return render_template('index.html', value=user_id)
 
 @application.route("/recs", methods=['POST'])
 def get_recs():
@@ -22,8 +24,9 @@ def get_qprecs():
     nr_recs = request.form.get("nrrecs")
     items = request.form.get("items")
     algo = request.form.get("algo")
+    user_id = request.form.get("user")
     ctrl = Controller()
-    return jsonify({"result": ctrl.get_qprecs(algo, movies, nr_recs, items)})
+    return jsonify({"result": ctrl.get_qprecs(algo, movies, nr_recs, items, user_id)})
 
 @application.route("/movies")
 def get_movies():

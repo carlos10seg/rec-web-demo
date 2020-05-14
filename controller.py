@@ -11,16 +11,16 @@ class Controller:
         recs = []
         for userId in users:
             if is_a_rec_request:
-                url = f'http://127.0.0.1:5000/algorithms/{algo}/recommendations?user_id={userId}&num_recs={nr_recs}'
+                url = f'http://127.0.0.1:8000/algorithms/{algo}/recommendations?user_id={userId}&num_recs={nr_recs}'
             else:
-                url = f'http://127.0.0.1:5000/algorithms/{algo}/predictions?user_id={userId}&items={items}'
+                url = f'http://127.0.0.1:8000/algorithms/{algo}/predictions?user_id={userId}&items={items}'
             r = requests.get(url)
             data = r.json()
             recs.append({'user': userId, 'recs': data['recommendations'] if is_a_rec_request else data['predictions']})
         return recs
         
-        print(data)
-        return data['recommendations']
+        # print(data)
+        # return data['recommendations']
     
     def get_movies(self, term):
         dbManager = DbManager()
@@ -30,9 +30,9 @@ class Controller:
         # db_list = [m for m in db_list if term in str.lower(m[1])]
         # return [{'id': m[0], 'label': m[1], 'value': m[1]} for m in db_list]
 
-    def get_qprecs(self, algo, movies, nr_recs, items):
+    def get_qprecs(self, algo, movies, nr_recs, items, user_id):
         dbManager = DbManager()        
-        user_id = dbManager.insert_and_get_min_user_id()
+        #user_id = dbManager.insert_and_get_min_user_id()
         rating_value = 5
         # remove all ratings from this user
         dbManager.remove_ratings(user_id)
@@ -42,6 +42,15 @@ class Controller:
             dbManager.insert_rating(user_id, m, rating_value)
         
         # get recs
-        return self.get_recs([user_id], nr_recs, algo, items)
+        all_recs = self.get_recs([user_id], nr_recs, algo, items)
 
-        
+        for current_recs in all_recs:
+            for rec in current_recs['recs']:
+                rec['title'] = dbManager.get_movie(rec['item']).loc[0, 'title']
+
+        return all_recs
+
+    def get_current_user_id(self):
+        dbManager = DbManager()        
+        user_id = dbManager.insert_and_get_min_user_id()
+        return user_id

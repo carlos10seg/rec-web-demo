@@ -39,6 +39,8 @@
 <div id="quick-picks">
     <h2>Quick picks functionality</h2>
     <h4>Pick 5 movies and the system gives me recommendations.</h4>
+    <span>Current user id: </span> <span id="userId">{{ value }}</span>
+    <br />
     <span>Movies:</span>
     <div class="ui-widget">
         <input id="movies" size="100" />
@@ -164,23 +166,32 @@
                 movies: moviesIds,
                 nrrecs: $("#txtNrRecs").val(),
                 items: $("#txtItems").val(),
-                // user: $("#txtUsers").val(),
+                user: $("#userId").text(),
                 // nrrecs: $("#txtNrRecs").val(),
                 algo: $("#cmbAlgos").val()
                 // items: $("#txtItems").val()
             }
         }).then(function (response) {
-            var htmlItem = "<div class='item'><span>User: <user/></span><p><recs/></p></div><br />"
+            // var htmlItem = "<div class='item'><span>User: <user/></span><p><recs/></p></div><br />"
+            // response.result.forEach(item => {
+            //     var recs = "";
+            //     item["recs"].forEach(rec => {
+            //         recs += rec['item'] + " => " + rec['score'] + " , ";
+            //     });
+            //     recs = recs.substr(0, recs.length - 1);
+            //     var parsedItem = htmlItem.replace('<user/>', item["user"]).replace('<recs/>', recs);
+            //     $('.qpRecs').append(parsedItem);
+            // });
+            // console.log(response);
+
+
+            var ul = $('<ul>').appendTo('.qpRecs');
             response.result.forEach(item => {
-                var recs = "";
                 item["recs"].forEach(rec => {
-                    recs += rec['item'] + " => " + rec['score'] + " , ";
+                    text = rec['title'] + ". Id: " + rec['item'] + ". Score: " + rec['score'];
+                    ul.append($('<li>').text(text));
                 });
-                recs = recs.substr(0, recs.length - 1);
-                var parsedItem = htmlItem.replace('<user/>', item["user"]).replace('<recs/>', recs);
-                $('.qpRecs').append(parsedItem);
             });
-            console.log(response);
         });
     }
 

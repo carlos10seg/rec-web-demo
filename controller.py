@@ -3,17 +3,15 @@ from db_manager import DbManager
 
 class Controller:
     
-    def get_recs(self, users, nr_recs, algo, items):
-        return self.get_recs_from_recserver(users, nr_recs, algo, items)
-
     def get_recs_from_recserver(self, users, nr_recs, algo, items):
+        base_url = 'http://127.0.0.1:5000'
         is_a_rec_request = True if algo == 'popular' or algo == 'topn' else False
         recs = []
         for userId in users:
             if is_a_rec_request:
-                url = f'http://127.0.0.1:8000/algorithms/{algo}/recommendations?user_id={userId}&num_recs={nr_recs}'
+                url = f'{base_url}/algorithms/{algo}/recommendations?user_id={userId}&num_recs={nr_recs}'
             else:
-                url = f'http://127.0.0.1:8000/algorithms/{algo}/predictions?user_id={userId}&items={items}'
+                url = f'{base_url}/algorithms/{algo}/predictions?user_id={userId}&items={items}'
             r = requests.get(url)
             data = r.json()
             recs.append({'user': userId, 'recs': data['recommendations'] if is_a_rec_request else data['predictions']})
@@ -42,7 +40,7 @@ class Controller:
             dbManager.insert_rating(user_id, m, rating_value)
         
         # get recs
-        all_recs = self.get_recs([user_id], nr_recs, algo, items)
+        all_recs = self.get_recs_from_recserver([user_id], nr_recs, algo, items)
 
         for current_recs in all_recs:
             for rec in current_recs['recs']:

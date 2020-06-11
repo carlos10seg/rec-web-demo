@@ -13,9 +13,9 @@ def get_recs():
     users = list(map(int, request.form.get("users").split(',')))
     nr_recs = request.form.get("nrrecs")
     algo = request.form.get("algo")
-    items = list(map(int, request.form.get("items").split(',')))
+    items = request.form.get("items")
     ctrl = Controller()
-    return jsonify({"result": ctrl.get_recs(users, nr_recs, algo, items)})
+    return jsonify({"result": ctrl.get_recs_from_recserver(users, nr_recs, algo, items)})
 
 
 @application.route("/qprecs", methods=['POST'])

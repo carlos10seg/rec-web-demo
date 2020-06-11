@@ -137,7 +137,7 @@
             response.result.forEach(item => {
                 var recs = "";
                 item["recs"].forEach(rec => {
-                    recs += rec['item'] + " ,";
+                    recs += rec['item'] + " : " + rec['score'] + " ,";
                 });
                 recs = recs.substr(0, recs.length - 1);
                 var parsedItem = htmlItem.replace('<user/>', item["user"]).replace('<recs/>', recs);

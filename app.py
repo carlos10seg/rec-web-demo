@@ -37,5 +37,12 @@ def get_movies():
         movies = ctrl.get_movies(term)
     return jsonify({"result": movies})
     
+@application.route("/imageurl")   
+def get_image_url():
+    movie_name = request.args.get('movie_name', '')
+    movie_year = request.args.get('movie_year', '')
+    ctrl = Controller()
+    return jsonify({"image_url": ctrl.get_image_url(movie_name, movie_year)})
+
 if __name__ == "__main__":
     application.run(debug=True, port=5002)

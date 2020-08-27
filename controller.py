@@ -1,10 +1,13 @@
 import requests
 from db_manager import DbManager
+from config_reader import ConfigReader
+from tmdb_proxy import TmdbProxy
 
 class Controller:
     
     def get_recs_from_recserver(self, users, nr_recs, algo, items):
-        base_url = 'http://127.0.0.1:5000'
+        config_reader = ConfigReader()
+        base_url = config_reader.get_value("rec_server_url")
         is_a_rec_request = True if algo == 'popular' or algo == 'topn' else False
         recs = []
         for userId in users:
@@ -52,3 +55,7 @@ class Controller:
         dbManager = DbManager()        
         user_id = dbManager.insert_and_get_min_user_id()
         return user_id
+
+    def get_image_url(self, movie_name, movie_year):
+        tmdb_proxy = TmdbProxy()
+        return tmdb_proxy.get_image_url(movie_name, movie_year)

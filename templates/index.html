@@ -49,7 +49,7 @@
                             method: "GET",
                             dataType: "json",
                             data: {
-                                term: extractLast(request.term)
+                                term: request.term
                             },
                         }).then(function (data) {
                             response(data.result);
@@ -57,18 +57,24 @@
                     },
                     minLength: 2,
                     select: function (event, ui) {
-                        movie_data = ui.item.value.split(' (');
-                        getImageUrl(movie_data[0], movie_data[1].replace(')', ''))
+                        // movie_data = ui.item.value.split(' (');
+                        movie_name = ui.item.value.substr(0, ui.item.value.length - 5)
+                        movie_year = ui.item.value.substr(ui.item.value.length - 5).replace(')', '')
+                        getImageUrl(movie_name, movie_year, ui.item.value, ui.item.id)                        
 
-                        var terms = split(this.value);
-                        // remove the current input
-                        terms.pop();
-                        // add the selected item
-                        terms.push(ui.item.value);
-                        // add placeholder to get the comma-and-space at the end
-                        terms.push("");
-                        this.value = terms.join(", ");
-                        moviesSelected.push(ui.item);
+                        // var terms = split(this.value);
+                        // // remove the current input
+                        // terms.pop();
+                        // // add the selected item
+                        // terms.push(ui.item.value);
+                        // // add placeholder to get the comma-and-space at the end
+                        // terms.push("");
+                        // this.value = terms.join(", ");
+                        
+                        this.value = '';
+                        console.log(ui.item);
+                        moviesSelected.push(ui.item.id);
+
                         return false;
                     }
                 });
@@ -108,7 +114,7 @@
         function getMoviesIds() {
             moviesIds = ""
             for (index = 0; index < moviesSelected.length; index++) { 
-                moviesIds += moviesSelected[index]['id'] + ","
+                moviesIds += moviesSelected[index] + ","
             }
             return moviesIds.substr(0, moviesIds.length - 1);
         }
@@ -138,7 +144,7 @@
             });
         }
 
-        function getImageUrl(movieName, movieYear) {
+        function getImageUrl(movieName, movieYear, fullName, movieId) {
             $.ajax({
                 url: "/imageurl",
                 method: "GET",
@@ -148,7 +154,21 @@
                     movie_year: movieYear
                 }
             }).then(function (response) {
-                console.log(response.image_url)
+                console.log(response.image_url);
+                addMovie(fullName, response.image_url, movieId);
+            });
+        }
+
+        function addMovie(movieName, imageUrl, movieId) {
+            var htmlItem = "<div class=\"col-lg-2 col-md-3 col-6\" style=\"margin-bottom:10px;\" id='{movieId}'><div class=\"card card-default\"><button onclick=\"removeMovie({movieId})\" type=\"button\" class=\"close\" aria-label=\"Close\"><span aria-hidden=\"true\">×</span></button><h5>{movieName}</h5><img src='{imageUrl}' width='150px' height='150px'/></div></div>";
+            parsedItem = htmlItem.replace('{movieName}', movieName).replace('{imageUrl}', imageUrl).replace(/{movieId}/g, movieId);
+            $('#selectedMovies').append(parsedItem);
+        }
+
+        function removeMovie(movieId) {
+            $('#' + movieId).remove();
+            moviesSelected = jQuery.grep(moviesSelected, function(value) {
+                return value != movieId;
             });
         }
 
@@ -166,6 +186,24 @@
     </header>
     <main role="main">
         <section class="jumbotron text-center">
+            <div class="container">
+                <!-- <span>Users:</span> <input type="text" id="txtUsers" value="22,196,244,2038,100" /> -->
+                <span>Number of Recs:</span> <input type="number" id="txtNrRecs" value="10" />
+                <span>Algorithms</span>
+                <select id="cmbAlgos">
+                    <option value="popular">Popular</option>
+                    <option value="bias">Bias</option>
+                    <option value="topn">TopN</option>
+                    <option value="itemitem">ItemItem</option>
+                    <option value="useruser">UserUser</option>
+                    <option value="biasedmf">BiasedMF</option>
+                    <option value="implicitmf">ImplicitMF</option>
+                    <option value="funksvd">FunkSVD</option>
+                </select>
+                <span>Items:</span> <input type="text" id="txtItems" value="5,102,203,304,400" />
+            </div>
+        </section>
+        <section class="jumbotron text-center">
             <div id="quick-picks" class="container">
                 <h2>Quick picks functionality</h2>
                 <p class="lead text-muted">
@@ -180,6 +218,9 @@
                         <input id="movies" size="100" />
                     </div>
                 </p>
+                <div class="row" id="selectedMovies"> 
+
+                </div>
                 <p>
                     <button id="btnQPRecs" class="btn btn-primary my-2">Get Recommendations</button>
                 </p>
@@ -189,7 +230,7 @@
                     </div>
                 </p>
             </div>
-        </section>
+        </section>     
     </main>
 
     <!-- <div id="settings">

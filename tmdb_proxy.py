@@ -10,6 +10,11 @@ class TmdbProxy:
 
     def get_image_url(self, movie_name, movie_year):
         movie_id = None
+
+        # reduce the movie name to get more results
+        if len(movie_name) > 10:
+            movie_name = movie_name[:10]
+
         # 1) Get movie id
         movies = requests.get(self.tmdb_search_url + movie_name).json()
         if len(movies['results']) > 0:

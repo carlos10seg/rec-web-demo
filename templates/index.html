@@ -57,23 +57,24 @@
                     },
                     minLength: 2,
                     select: function (event, ui) {
-                        // movie_data = ui.item.value.split(' (');
-                        movie_name = ui.item.value.substr(0, ui.item.value.length - 5)
-                        movie_year = ui.item.value.substr(ui.item.value.length - 5).replace(')', '')
-                        getImageUrl(movie_name, movie_year, ui.item.value, ui.item.id)                        
+                        if (moviesSelected.indexOf(ui.item.id) == -1) {
+                            // movie_data = ui.item.value.split(' (');
+                            movie_name = ui.item.value.substr(0, ui.item.value.length - 5)
+                            movie_year = ui.item.value.substr(ui.item.value.length - 5).replace(')', '')
+                            getImageUrl(movie_name, movie_year, ui.item.value, ui.item.id)                        
 
-                        // var terms = split(this.value);
-                        // // remove the current input
-                        // terms.pop();
-                        // // add the selected item
-                        // terms.push(ui.item.value);
-                        // // add placeholder to get the comma-and-space at the end
-                        // terms.push("");
-                        // this.value = terms.join(", ");
-                        
+                            // var terms = split(this.value);
+                            // // remove the current input
+                            // terms.pop();
+                            // // add the selected item
+                            // terms.push(ui.item.value);
+                            // // add placeholder to get the comma-and-space at the end
+                            // terms.push("");
+                            // this.value = terms.join(", ");
+                                                        
+                            moviesSelected.push(ui.item.id);
+                        }
                         this.value = '';
-                        console.log(ui.item);
-                        moviesSelected.push(ui.item.id);
 
                         return false;
                     }
@@ -120,7 +121,7 @@
         }
 
         function getQPRecs(){
-            $('.qpRecs').empty();
+            $('#qpRecs').empty();
             moviesIds = getMoviesIds();
             $.ajax({
                 url: "/qprecs",
@@ -134,11 +135,12 @@
                     algo: $("#cmbAlgos").val()
                 }
             }).then(function (response) {
-                var ul = $('<ul>').appendTo('.qpRecs');
+                // var ul = $('<ul>').appendTo('.qpRecs');
                 response.result.forEach(item => {
                     item["recs"].forEach(rec => {
-                        text = rec['title'] + ". Id: " + rec['item'] + ". Score: " + rec['score'];
-                        ul.append($('<li>').text(text));
+                        // text = rec['title'] + ". Id: " + rec['item'] + ". Score: " + rec['score'];
+                        // ul.append($('<li>').text(text));
+                        addMovie('qpRecs', rec['title'], rec['image_url'], rec['item'], rec['score']);
                     });
                 });
             });
@@ -154,15 +156,17 @@
                     movie_year: movieYear
                 }
             }).then(function (response) {
-                console.log(response.image_url);
-                addMovie(fullName, response.image_url, movieId);
+                addMovie('selectedMovies', fullName, response.image_url, movieId);
             });
         }
 
-        function addMovie(movieName, imageUrl, movieId) {
-            var htmlItem = "<div class=\"col-lg-2 col-md-3 col-6\" style=\"margin-bottom:10px;\" id='{movieId}'><div class=\"card card-default\"><button onclick=\"removeMovie({movieId})\" type=\"button\" class=\"close\" aria-label=\"Close\"><span aria-hidden=\"true\">×</span></button><h5>{movieName}</h5><img src='{imageUrl}' width='150px' height='150px'/></div></div>";
-            parsedItem = htmlItem.replace('{movieName}', movieName).replace('{imageUrl}', imageUrl).replace(/{movieId}/g, movieId);
-            $('#selectedMovies').append(parsedItem);
+        function addMovie(containerId, movieName, imageUrl, movieId, score) {
+            var htmlItem = "<div class=\"col-lg-2 col-md-3 col-6\" style=\"margin-bottom:10px;\" id='{movieId}'><div class=\"card card-default\"><button onclick=\"removeMovie({movieId})\" type=\"button\" class=\"close\" aria-label=\"Close\"><span aria-hidden=\"true\">×</span></button><h5>{movieName}</h5> <p>{score}</p> <img src='{imageUrl}' width='150px' height='150px'/></div></div>";
+            parsedItem = htmlItem.replace('{movieName}', movieName).replace('{imageUrl}', imageUrl).replace(/{movieId}/g, movieId).replace('{score}', score != undefined ? 'Score: ' + score : '');
+            // if (score != undefined) {
+            //     parsedItem = parsedItem.replace('{score}', score);
+            // }
+            $('#' + containerId).append(parsedItem);
         }
 
         function removeMovie(movieId) {
@@ -185,24 +189,11 @@
         </div>
     </header>
     <main role="main">
-        <section class="jumbotron text-center">
+        <!-- <section class="text-center">
             <div class="container">
-                <!-- <span>Users:</span> <input type="text" id="txtUsers" value="22,196,244,2038,100" /> -->
-                <span>Number of Recs:</span> <input type="number" id="txtNrRecs" value="10" />
-                <span>Algorithms</span>
-                <select id="cmbAlgos">
-                    <option value="popular">Popular</option>
-                    <option value="bias">Bias</option>
-                    <option value="topn">TopN</option>
-                    <option value="itemitem">ItemItem</option>
-                    <option value="useruser">UserUser</option>
-                    <option value="biasedmf">BiasedMF</option>
-                    <option value="implicitmf">ImplicitMF</option>
-                    <option value="funksvd">FunkSVD</option>
-                </select>
                 <span>Items:</span> <input type="text" id="txtItems" value="5,102,203,304,400" />
             </div>
-        </section>
+        </section> -->
         <section class="jumbotron text-center">
             <div id="quick-picks" class="container">
                 <h2>Quick picks functionality</h2>
@@ -222,11 +213,22 @@
 
                 </div>
                 <p>
+                    <span>Number of Recs:</span> <input type="number" id="txtNrRecs" value="10" />
+                    <span>Algorithms</span>
+                    <select id="cmbAlgos">
+                        <option value="popular">Popular</option>
+                        <option value="bias">Bias</option>
+                        <option value="itemitem">ItemItem</option>
+                        <option value="useruser">UserUser</option>
+                        <option value="biasedmf">BiasedMF</option>
+                        <option value="implicitmf">ImplicitMF</option>
+                        <option value="funksvd">FunkSVD</option>
+                    </select>
                     <button id="btnQPRecs" class="btn btn-primary my-2">Get Recommendations</button>
                 </p>
                 <p>
                     <h4>Recommendations:</h4>
-                    <div class="qpRecs">
+                    <div class="row" id="qpRecs">
                     </div>
                 </p>
             </div>

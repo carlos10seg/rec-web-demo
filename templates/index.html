@@ -161,11 +161,12 @@
         }
 
         function addMovie(containerId, movieName, imageUrl, movieId, score) {
-            var htmlItem = "<div class=\"col-lg-2 col-md-3 col-6\" style=\"margin-bottom:10px;\" id='{movieId}'><div class=\"card card-default\"><button onclick=\"removeMovie({movieId})\" type=\"button\" class=\"close\" aria-label=\"Close\"><span aria-hidden=\"true\">×</span></button><h5>{movieName}</h5> <p>{score}</p> <img src='{imageUrl}' width='150px' height='150px'/></div></div>";
+            var htmlItem = null
+            if (imageUrl != null)
+                htmlItem = "<div class=\"col-lg-2 col-md-3 col-6\" style=\"margin-bottom:10px;\" id='{movieId}'><div class=\"card card-default\" style=\"width: 152px\"><button onclick=\"removeMovie({movieId})\" type=\"button\" class=\"close\" aria-label=\"Close\"><span aria-hidden=\"true\">×</span></button><h5>{movieName}</h5> <p>{score}</p> <img src='{imageUrl}' width='150px' height='150px'/></div></div>";
+            else 
+                htmlItem = "<div class=\"col-lg-2 col-md-3 col-6\" style=\"margin-bottom:10px;\" id='{movieId}'><div class=\"card card-default\" style=\"width: 152px\"><button onclick=\"removeMovie({movieId})\" type=\"button\" class=\"close\" aria-label=\"Close\"><span aria-hidden=\"true\">×</span></button><h5>{movieName}</h5> <p>{score}</p></div></div>";
             parsedItem = htmlItem.replace('{movieName}', movieName).replace('{imageUrl}', imageUrl).replace(/{movieId}/g, movieId).replace('{score}', score != undefined ? 'Score: ' + score : '');
-            // if (score != undefined) {
-            //     parsedItem = parsedItem.replace('{score}', score);
-            // }
             $('#' + containerId).append(parsedItem);
         }
 

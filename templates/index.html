@@ -58,20 +58,7 @@
                     minLength: 2,
                     select: function (event, ui) {
                         if (moviesSelected.indexOf(ui.item.id) == -1) {
-                            // movie_data = ui.item.value.split(' (');
-                            movie_name = ui.item.value.substr(0, ui.item.value.length - 5)
-                            movie_year = ui.item.value.substr(ui.item.value.length - 5).replace(')', '')
-                            getImageUrl(movie_name, movie_year, ui.item.value, ui.item.id)                        
-
-                            // var terms = split(this.value);
-                            // // remove the current input
-                            // terms.pop();
-                            // // add the selected item
-                            // terms.push(ui.item.value);
-                            // // add placeholder to get the comma-and-space at the end
-                            // terms.push("");
-                            // this.value = terms.join(", ");
-                                                        
+                            getImageUrl(ui.item.value, ui.item.id)
                             moviesSelected.push(ui.item.id);
                         }
                         this.value = '';
@@ -146,14 +133,13 @@
             });
         }
 
-        function getImageUrl(movieName, movieYear, fullName, movieId) {
+        function getImageUrl(fullName, movieId) {
             $.ajax({
                 url: "/imageurl",
                 method: "GET",
                 dataType: "json",
                 data: {
-                    movie_name: movieName,
-                    movie_year: movieYear
+                    movie_id: movieId
                 }
             }).then(function (response) {
                 addMovie('selectedMovies', fullName, response.image_url, movieId);

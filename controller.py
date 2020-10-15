@@ -2,6 +2,7 @@ import requests
 from db_manager import DbManager
 from config_reader import ConfigReader
 from tmdb_proxy import TmdbProxy
+import pandas as pd
 
 class Controller:
     
@@ -62,6 +63,8 @@ class Controller:
         user_id = dbManager.insert_and_get_min_user_id()
         return user_id
 
-    def get_image_url(self, movie_name, movie_year):
+    def get_image_url(self, movie_id):
         tmdb_proxy = TmdbProxy()
-        return tmdb_proxy.get_image_url(movie_name, movie_year)
+        links = pd.read_csv("data/links.csv", sep=',')
+        tmdb_id = links[links['movieId'] == int(movie_id)]['tmdbId'].values[0]
+        return tmdb_proxy.get_image_url(tmdb_id)

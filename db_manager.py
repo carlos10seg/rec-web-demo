@@ -17,7 +17,7 @@ class DbManager:
             database=db_connection['database'])
  
     def get_ratings(self):
-        return sql.read_sql("SELECT userId, itemId, rating, timestamp FROM ratings;", create_engine(self.conn_string))
+        return sql.read_sql("SELECT user, item, rating, timestamp FROM ratings;", create_engine(self.conn_string))
 
     def get_movies(self, term):
         return sql.read_sql("SELECT movieId, title, genres FROM movies WHERE title LIKE '%{term}%';".format(term=term), create_engine(self.conn_string))
@@ -25,26 +25,26 @@ class DbManager:
     def get_movie(self, id):
         return sql.read_sql("SELECT title, genres FROM movies WHERE movieId = {id};".format(id=id), create_engine(self.conn_string))
 
-    def get_links(self):
-        return sql.read_sql("SELECT movieId, imdbId, tmdbId FROM links;", create_engine(self.conn_string))
+    # def get_links(self):
+    #     return sql.read_sql("SELECT movieId, imdbId, tmdbId FROM links;", create_engine(self.conn_string))
 
     def insert_rating(self, user_id, movie_id, rating_value):        
-        sql.execute("INSERT INTO ratings VALUES ({userId}, {itemId}, {rating}, '{timestamp}')".format(
-                    userId=user_id,
-                    itemId=movie_id,
+        sql.execute("INSERT INTO ratings VALUES ({user}, {item}, {rating}, '{timestamp}')".format(
+                    user=user_id,
+                    item=movie_id,
                     rating=rating_value,
                     timestamp=datetime.timestamp(datetime.now()),
                     ), create_engine(self.conn_string))
 
     def remove_ratings(self, user_id):
-        sql.execute("DELETE FROM ratings WHERE userId = {userId}".format(
-                    userId=user_id), create_engine(self.conn_string))
+        sql.execute("DELETE FROM ratings WHERE user = {user}".format(
+                    user=user_id), create_engine(self.conn_string))
 
     def insert_and_get_min_user_id(self):
-        db_list = sql.read_sql("SELECT MIN(userId) as userId FROM users;", create_engine(self.conn_string))
-        #min_user_id = [m[1]['userId'] for m in db_list.iterrows()][0]
-        min_user_id = db_list.iloc[0]['userId']
+        db_list = sql.read_sql("SELECT MIN(user) as user FROM users;", create_engine(self.conn_string))
+        #min_user_id = [m[1]['user'] for m in db_list.iterrows()][0]
+        min_user_id = db_list.iloc[0]['user']
         user_id = int(min_user_id - 1)
-        sql.execute("INSERT INTO users(userId) VALUES ({userId})".format(userId=user_id), create_engine(self.conn_string))
+        sql.execute("INSERT INTO users(user) VALUES ({user})".format(user=user_id), create_engine(self.conn_string))
         return user_id
     

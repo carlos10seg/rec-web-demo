@@ -3,12 +3,13 @@
     "rec_server_url": "http://127.0.0.1:8000",
     "db_connection":
     {
-        "db_engine": "mysql",
-        "connector": "+mysqlconnector",
-        "user": "root",
-        "password": "root",
-        "server": "localhost",
-        "database": "db"
+        "db_engine": "postgres",
+        "connector": "+psycopg2",
+        "user": "postgres",
+        "password": "postgres",
+        "server": "postgresdb",
+        "database": "db",
+        "pool_size": 20
     },
     "tmdb_search_url": "https://api.themoviedb.org/3/search/movie?api_key=488b5b045c53046a001bf698ed73831e&query=",
     "tmdb_images_url": "https://api.themoviedb.org/3/movie/<movieId>/images?api_key=488b5b045c53046a001bf698ed73831e&language=en",

@@ -17,7 +17,7 @@ class DbManager:
             database=db_connection['database'])
  
     def get_ratings(self):
-        return sql.read_sql("SELECT user, item, rating, timestamp FROM ratings;", create_engine(self.conn_string))
+        return sql.read_sql("SELECT t.user, t.item, t.rating, timestamp FROM rating t;", create_engine(self.conn_string))
 
     def get_movies(self, term):
         return sql.read_sql("SELECT movieId, title, genres FROM movies WHERE title LIKE '%{term}%';".format(term=term), create_engine(self.conn_string))
@@ -29,7 +29,7 @@ class DbManager:
     #     return sql.read_sql("SELECT movieId, imdbId, tmdbId FROM links;", create_engine(self.conn_string))
 
     def insert_rating(self, user_id, movie_id, rating_value):        
-        sql.execute("INSERT INTO ratings VALUES ({user}, {item}, {rating}, '{timestamp}')".format(
+        sql.execute("INSERT INTO rating VALUES ({user}, {item}, {rating}, '{timestamp}')".format(
                     user=user_id,
                     item=movie_id,
                     rating=rating_value,
@@ -37,14 +37,16 @@ class DbManager:
                     ), create_engine(self.conn_string))
 
     def remove_ratings(self, user_id):
-        sql.execute("DELETE FROM ratings WHERE user = {user}".format(
+        sql.execute("DELETE FROM rating WHERE user = {user}".format(
                     user=user_id), create_engine(self.conn_string))
 
     def insert_and_get_min_user_id(self):
         db_list = sql.read_sql("SELECT MIN(user) as user FROM users;", create_engine(self.conn_string))
         #min_user_id = [m[1]['user'] for m in db_list.iterrows()][0]
         min_user_id = db_list.iloc[0]['user']
+        if min_user_id is None:
+            min_user_id = 0
         user_id = int(min_user_id - 1)
-        sql.execute("INSERT INTO users(user) VALUES ({user})".format(user=user_id), create_engine(self.conn_string))
+        sql.execute("INSERT INTO users VALUES ({user}, '')".format(user=user_id), create_engine(self.conn_string))
         return user_id
     

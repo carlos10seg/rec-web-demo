@@ -46,15 +46,12 @@ class Controller:
         
         # get recs
         all_recs = self.get_recs_from_recserver([user_id], nr_recs, algo, items)
-
-        for current_recs in all_recs:
-            for rec in current_recs['recs']:
-                rec['title'] = dbManager.get_movie(rec['item']).loc[0, 'title']
-                # movie_name = ui.item.value.substr(0, ui.item.value.length - 5)
-                # movie_year = ui.item.value.substr(ui.item.value.length - 5).replace(')', '')
-                movie_name = rec['title'][:-5]
-                movie_year = rec['title'][-5:].replace(')', '')
-                rec['image_url'] = self.get_image_url(movie_name, movie_year)
+        print(all_recs)
+        for user_recs in all_recs:
+            if user_recs['recs'] != None:
+                for rec in user_recs['recs']:
+                    rec['title'] = dbManager.get_movie(rec['item']).loc[0, 'title']
+                    rec['image_url'] = self.get_image_url(rec['item'])
 
         return all_recs
 

@@ -5,15 +5,15 @@
 FROM python:3.8-buster
 
 # We copy just the requirements.txt first to leverage Docker cache
-COPY ./requirements.txt /app/requirements.txt
+COPY ./requirements.txt /demoapp/requirements.txt
 
-WORKDIR /app
+WORKDIR /demoapp
 
 RUN pip install -r requirements.txt
 
-COPY . /app
+COPY . /demoapp
 
-EXPOSE 5010
+EXPOSE 5002
 
 # ENTRYPOINT ["python"]
 # CMD ["app.py"]

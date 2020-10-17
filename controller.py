@@ -5,6 +5,10 @@ from tmdb_proxy import TmdbProxy
 import pandas as pd
 
 class Controller:
+
+    def setup_db(self):
+        dbManager = DbManager()
+        dbManager.setup_db()
     
     def get_recs_from_recserver(self, users, nr_recs, algo, items):
         config_reader = ConfigReader()
@@ -29,7 +33,7 @@ class Controller:
         dbManager = DbManager()
         db_list = dbManager.get_movies(term)
         #for index, row in db_list.iterrows():
-        return [{'id': m[1]['movieId'], 'label': m[1]['title'], 'value': m[1]['title']} for m in db_list.iterrows()]
+        return [{'id': m[1]['id'], 'label': m[1]['title'], 'value': m[1]['title']} for m in db_list.iterrows()]
         # db_list = [m for m in db_list if term in str.lower(m[1])]
         # return [{'id': m[0], 'label': m[1], 'value': m[1]} for m in db_list]
 

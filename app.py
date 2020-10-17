@@ -2,6 +2,11 @@ from flask import Flask, render_template, jsonify, request
 from controller import Controller
 application = Flask(__name__)
  
+@application.before_first_request
+def setup_db():
+    ctrl = Controller()
+    ctrl.setup_db()
+
 @application.route("/")
 def index():
     ctrl = Controller()
